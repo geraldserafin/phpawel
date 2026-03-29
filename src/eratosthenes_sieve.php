@@ -1,7 +1,6 @@
 <?php
 
-function sieve(int $n): array
-{
+function sieve(int $n): array {
     $A = array_pad([false, false], $n, true);
 
     foreach (range(2, sqrt($n)) as $i) {
@@ -17,8 +16,7 @@ function sieve(int $n): array
     return array_keys(array_filter($A));
 }
 
-function hundreds(array $a): array
-{
+function hundreds(array $a): array {
     $result = [];
 
     foreach ($a as $p) {
@@ -28,8 +26,7 @@ function hundreds(array $a): array
     return $result;
 }
 
-function find_goldbach_pairs(int $n, array|null &$primes = null): array
-{
+function find_goldbach_pairs(int $n, array|null &$primes = null): array {
     if (!$primes) {
         $primes = sieve($n);
     }
@@ -52,8 +49,7 @@ function find_goldbach_pairs(int $n, array|null &$primes = null): array
     return $pairs;
 }
 
-function find_goldbach_pairs_in_range(int $a, int $b): array
-{
+function find_goldbach_pairs_in_range(int $a, int $b): array {
     $primes = sieve($b);
     $result = [];
 

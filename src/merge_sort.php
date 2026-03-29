@@ -1,7 +1,6 @@
 <?php
 
-function merge_sort(array $array)
-{
+function merge_sort(array $array) {
     $cmp_count = 0;
 
     $merge = function (array $l, array $r) use (&$cmp_count) {
