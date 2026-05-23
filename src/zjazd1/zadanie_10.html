@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="pl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Menedżer Zadań</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        color: #333;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        padding: 24px 80px;
+        text-align: center;
+      }
+
+      header::after {
+        content: '';
+        display: block;
+        height: 3px;
+        background-color: #4a90d9;
+        margin-top: 16px;
+      }
+
+      header h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #1a1a2e;
+      }
+
+      main {
+        flex: 1;
+        padding: 32px 40px;
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+      }
+
+      .form-card {
+        background: #fff;
+        border-radius: 6px;
+        padding: 32px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+
+      .form-card h2 {
+        font-size: 1.4rem;
+        margin-bottom: 24px;
+        color: #1a1a2e;
+      }
+
+      .alert {
+        display: none;
+        background-color: #fde8e8;
+        border-left: 4px solid #c0392b;
+        padding: 12px 16px;
+        margin-bottom: 24px;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .alert ul {
+        list-style: none;
+        padding: 0;
+      }
+
+      .alert ul li::before {
+        content: "⚠ ";
+        color: #c0392b;
+        font-weight: bold;
+      }
+
+      .alert ul li {
+        color: #c0392b;
+        font-size: 0.95rem;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 20px 24px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .field.full-width {
+        grid-column: 1 / -1;
+      }
+
+      .field.span-two {
+        grid-column: span 2;
+      }
+
+      label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+      }
+
+      label .required {
+        color: #c0392b;
+        margin-left: 2px;
+      }
+
+      input[type="text"],
+      input[type="number"],
+      input[type="date"],
+      select,
+      textarea {
+        padding: 10px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        color: #333;
+        background: #fff;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        width: 100%;
+      }
+
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      input[type="date"]:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #4a90d9;
+        box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.2);
+      }
+
+      textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px 20px;
+        margin-top: 4px;
+      }
+
+      .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .checkbox-item input[type="checkbox"] {
+        width: 15px;
+        height: 15px;
+        cursor: pointer;
+        accent-color: #4a90d9;
+      }
+
+      .checkbox-item label {
+        font-weight: normal;
+        cursor: pointer;
+      }
+
+      .notification-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        grid-column: 1 / -1;
+      }
+
+      .notification-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #4a90d9;
+        cursor: pointer;
+      }
+
+      .notification-row label {
+        font-weight: normal;
+        font-size: 0.95rem;
+        cursor: pointer;
+      }
+
+      .form-divider {
+        grid-column: 1 / -1;
+        border: none;
+        border-top: 1px solid #e0e0e0;
+        margin: 4px 0;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 28px;
+      }
+
+      .btn {
+        padding: 10px 24px;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+          background-color 0.2s,
+          transform 0.1s;
+      }
+
+      .btn-primary {
+        background-color: #4a90d9;
+        color: #fff;
+      }
+
+      .btn-primary:hover {
+        background-color: #357abd;
+      }
+
+      .btn-secondary {
+        background-color: #e0e0e0;
+        color: #333;
+      }
+
+      .btn-secondary:hover {
+        background-color: #c8c8c8;
+      }
+
+      .btn:active {
+        transform: scale(0.97);
+      }
+
+
+      @media (max-width: 768px) {
+        header {
+          padding: 16px 20px;
+        }
+
+        header h1 {
+          font-size: 1.4rem;
+        }
+
+        main {
+          padding: 16px 16px;
+        }
+
+        .form-card {
+          padding: 20px 16px;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .field.full-width,
+        .field.span-two {
+          grid-column: 1;
+        }
+
+        .notification-row {
+          grid-column: 1;
+        }
+
+        .form-actions {
+          flex-direction: column;
+        }
+
+        .btn {
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Rozbudowany Menedżer Zadań</h1>
+    </header>
+
+    <main>
+      <div class="form-card">
+        <h2>Dodaj nowe zadanie</h2>
+
+        <div class="alert" role="alert">
+          <ul>
+            <li>Kategoria jest wymagana</li>
+          </ul>
+        </div>
+
+        <form action="#" method="post" novalidate>
+          <div class="form-grid">
+            <!-- Tytuł — spans 2 cols, Kategoria fills col 3 -->
+            <div class="field span-two">
+              <label for="tytul"
+                >Tytuł zadania: <span class="required">*</span></label
+              >
+              <input
+                type="text"
+                id="tytul"
+                name="tytul"
+                placeholder="Wprowadź tytuł zadania"
+                required
+              />
+            </div>
+
+            <!-- Kategoria -->
+            <div class="field">
+              <label for="kategoria"
+                >Kategoria: <span class="required">*</span></label
+              >
+              <select id="kategoria" name="kategoria" required>
+                <option value="">Wybierz kategorię</option>
+                <option value="domowe">Domowe</option>
+                <option value="praca">Praca</option>
+                <option value="nauka">Nauka</option>
+                <option value="hobby">Hobby</option>
+                <option value="inne">Inne</option>
+              </select>
+            </div>
+
+            <!-- Opis — full width -->
+            <div class="field full-width">
+              <label for="opis">Opis zadania:</label>
+              <textarea
+                id="opis"
+                name="opis"
+                placeholder="Opisz szczegóły zadania..."
+              ></textarea>
+            </div>
+
+            <hr class="form-divider" />
+
+            <!-- Priorytet -->
+            <div class="field">
+              <label for="priorytet"
+                >Priorytet: <span class="required">*</span></label
+              >
+              <select id="priorytet" name="priorytet" required>
+                <option value="">Wybierz priorytet</option>
+                <option value="niski">Niski</option>
+                <option value="sredni">Średni</option>
+                <option value="wysoki">Wysoki</option>
+                <option value="krytyczny">Krytyczny</option>
+              </select>
+            </div>
+
+            <!-- Status -->
+            <div class="field">
+              <label for="status">Status:</label>
+              <select id="status" name="status">
+                <option value="">Wybierz status</option>
+                <option value="nowe">Nowe</option>
+                <option value="w-toku">W toku</option>
+                <option value="wstrzymane">Wstrzymane</option>
+                <option value="zakonczone">Zakończone</option>
+              </select>
+            </div>
+
+            <!-- Data wykonania -->
+            <div class="field">
+              <label for="data-wykonania"
+                >Data wykonania: <span class="required">*</span></label
+              >
+              <input
+                type="date"
+                id="data-wykonania"
+                name="data_wykonania"
+                required
+              />
+            </div>
+
+            <!-- Data rozpoczęcia -->
+            <div class="field">
+              <label for="data-start">Data rozpoczęcia:</label>
+              <input type="date" id="data-start" name="data_start" />
+            </div>
+
+            <!-- Szacowany czas -->
+            <div class="field">
+              <label for="czas">Szacowany czas (minuty):</label>
+              <input
+                type="number"
+                id="czas"
+                name="czas"
+                min="1"
+                step="1"
+                placeholder="0"
+              />
+            </div>
+
+            <!-- Lokalizacja -->
+            <div class="field">
+              <label for="lokalizacja">Lokalizacja:</label>
+              <input
+                type="text"
+                id="lokalizacja"
+                name="lokalizacja"
+                placeholder="Miejsce realizacji"
+              />
+            </div>
+
+            <!-- Osoba przypisana -->
+            <div class="field">
+              <label for="osoba">Osoba przypisana:</label>
+              <input
+                type="text"
+                id="osoba"
+                name="osoba"
+                placeholder="Imię i nazwisko"
+              />
+            </div>
+
+            <hr class="form-divider" />
+
+            <!-- Potrzebne zasoby — full width -->
+            <div class="field full-width">
+              <label>Potrzebne zasoby:</label>
+              <div class="checkbox-group">
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-komputer"
+                    name="zasoby[]"
+                    value="komputer"
+                  />
+                  <label for="res-komputer">Komputer</label>
+                </span>
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-internet"
+                    name="zasoby[]"
+                    value="internet"
+                  />
+                  <label for="res-internet">Internet</label>
+                </span>
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-telefon"
+                    name="zasoby[]"
+                    value="telefon"
+                  />
+                  <label for="res-telefon">Telefon</label>
+                </span>
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-samochod"
+                    name="zasoby[]"
+                    value="samochod"
+                  />
+                  <label for="res-samochod">Samochód</label>
+                </span>
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-ksiazka"
+                    name="zasoby[]"
+                    value="ksiazka"
+                  />
+                  <label for="res-ksiazka">Książka</label>
+                </span>
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-narzedzia"
+                    name="zasoby[]"
+                    value="narzedzia"
+                  />
+                  <label for="res-narzedzia">Narzędzia</label>
+                </span>
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-dokumenty"
+                    name="zasoby[]"
+                    value="dokumenty"
+                  />
+                  <label for="res-dokumenty">Dokumenty</label>
+                </span>
+                <span class="checkbox-item">
+                  <input
+                    type="checkbox"
+                    id="res-inne"
+                    name="zasoby[]"
+                    value="inne"
+                  />
+                  <label for="res-inne">Inne</label>
+                </span>
+              </div>
+            </div>
+
+            <!-- Powiadomienia — full width -->
+            <div class="notification-row">
+              <input
+                type="checkbox"
+                id="powiadomienia"
+                name="powiadomienia"
+                value="1"
+              />
+              <label for="powiadomienia"
+                >Wyślij powiadomienie o przypisaniu zadania</label
+              >
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="reset" class="btn btn-secondary">Wyczyść</button>
+            <button type="submit" class="btn btn-primary">Dodaj zadanie</button>
+          </div>
+        </form>
+      </div>
+    </main>
+
+  </body>
+</html>
